@@ -1,0 +1,6 @@
+[submodule "simple-zookeeper-viewer"]
+	path = simple-zookeeper-viewer
+	url = ./simple-zookeeper-viewer
+[submodule "kafka-sample-programs"]
+	path = kafka-sample-programs
+	url = ./kafka-sample-programs
