@@ -1,0 +1,44 @@
+zookeeper:
+    image: jplock/zookeeper
+    restart: always
+    ports:
+        - "2181:2181"
+
+kafka:
+    image: wurstmeister/kafka
+    restart: always
+    ports:
+        - "9092"
+        - "9999:9999"
+    links:
+        - zookeeper:zk
+    environment:
+        KAFKA_ADVERTISED_HOST_NAME: 192.168.99.100
+        KAFKA_CREATE_TOPICS: "fast-messages:1:1,summary-markers:1:1"
+        KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.rmi.port=9999 -Djava.rmi.server.hostname=192.168.99.100"
+        JMX_PORT: 9999
+    volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+
+monitor:
+    build: ./KafkaOffsetMonitor
+    ports:
+        - "8080:8080"
+    links:
+        - zookeeper:zk
+
+consumer:
+    build: ./kafka-sample-programs
+    environment:
+        TYPE: consumer
+    links:
+        - kafka:kafka
+        - zookeeper:zk
+
+producer:
+    build: ./kafka-sample-programs
+    environment:
+        TYPE: producer
+    links:
+        - kafka:kafka
+        - zookeeper:zk
